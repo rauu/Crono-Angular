@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -18,7 +18,7 @@ export class TimeListComponent implements OnInit {
   filteredTimes: TimeGetResponse[] = [];
   searchTerm: string = '';
 
-  constructor(private timeService: TimeService) {}
+  constructor(private timeService: TimeService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.loadTimes();
@@ -29,6 +29,7 @@ export class TimeListComponent implements OnInit {
       next: (data) => {
         this.times = data;
         this.filteredTimes = data;
+        this.cdr.markForCheck();
       },
       error: (err) => console.error('Error loading times', err)
     });

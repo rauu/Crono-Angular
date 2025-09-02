@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -23,7 +23,8 @@ export class TaskFormComponent implements OnInit {
     private fb: FormBuilder,
     private tasksService: TasksService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.taskForm = this.fb.group({
       name: ['', Validators.required],
@@ -48,6 +49,7 @@ export class TaskFormComponent implements OnInit {
           description: task.description,
           customer: task.customer
         });
+        this.cdr.markForCheck();
       },
       error: (err) => console.error('Error loading task', err)
     });

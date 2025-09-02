@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -23,7 +23,8 @@ export class TimeFormComponent implements OnInit {
     private fb: FormBuilder,
     private timeService: TimeService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.timeForm = this.fb.group({
       description: ['', Validators.required],
@@ -48,6 +49,7 @@ export class TimeFormComponent implements OnInit {
           begin_date: time.begin_date,
           end_date: time.end_date
         });
+        this.cdr.markForCheck();
       },
       error: (err) => console.error('Error loading time', err)
     });

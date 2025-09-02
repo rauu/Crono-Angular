@@ -1,0 +1,29 @@
+<div class="container">
+  <h1>Lista de Tareas</h1>
+  <div class="actions">
+    <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Buscar tareas..." class="search-input">
+    <a routerLink="/tasks/new" class="btn btn-primary">Nueva Tarea</a>
+  </div>
+  @if (loading) {
+    <div class="loading">Cargando...</div>
+  }
+  @if (errorMessage) {
+    <div class="error">{{ errorMessage }}</div>
+  }
+  @if (!loading && !errorMessage) {
+    <div class="task-list">
+      @for (task of filteredTasks; track task.id) {
+        <div class="task-card">
+          <h3>{{ task.name }}</h3>
+          <p>{{ task.description }}</p>
+          <p><strong>Cliente:</strong> {{ task.customer }}</p>
+          <div class="card-actions">
+            <a [routerLink]="['/tasks', task.id]" class="btn btn-secondary">Editar</a>
+            <button (click)="deleteTask(task.id!)" class="btn btn-danger">Eliminar</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+  <a routerLink="/" class="btn btn-link">Volver al Inicio</a>
+</div>

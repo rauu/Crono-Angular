@@ -1,0 +1,21 @@
+<div class="container">
+  <h1>{{ isEdit ? 'Editar Tiempo' : 'Nuevo Tiempo' }}</h1>
+  <form [formGroup]="timeForm" (ngSubmit)="onSubmit()" class="time-form">
+    <div class="form-group">
+      <label for="description">Descripción:</label>
+      <textarea id="description" formControlName="description" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="begin_date">Fecha Inicio:</label>
+      <input type="datetime-local" id="begin_date" formControlName="begin_date" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="end_date">Fecha Fin (opcional):</label>
+      <input type="datetime-local" id="end_date" formControlName="end_date" class="form-control">
+    </div>
+    <div class="form-actions">
+      <button type="submit" [disabled]="!timeForm.valid" class="btn btn-primary">Guardar</button>
+      <a routerLink="/times" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>

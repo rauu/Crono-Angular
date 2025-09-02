@@ -1,0 +1,21 @@
+<div class="container">
+  <h1>{{ isEdit ? 'Editar Tarea' : 'Nueva Tarea' }}</h1>
+  <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="task-form">
+    <div class="form-group">
+      <label for="name">Nombre:</label>
+      <input type="text" id="name" formControlName="name" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="description">Descripción:</label>
+      <textarea id="description" formControlName="description" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="customer">Cliente:</label>
+      <input type="text" id="customer" formControlName="customer" class="form-control">
+    </div>
+    <div class="form-actions">
+      <button type="submit" [disabled]="!taskForm.valid" class="btn btn-primary">Guardar</button>
+      <a routerLink="/tasks" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>

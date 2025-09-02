@@ -1,0 +1,22 @@
+<div class="container">
+  <h1>Lista de Tiempos</h1>
+  <div class="actions">
+    <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Buscar tiempos..." class="search-input">
+    <a routerLink="/times/new" class="btn btn-primary">Nuevo Tiempo</a>
+  </div>
+  <div class="time-list">
+    @for (time of filteredTimes; track time.id) {
+      <div class="time-card">
+        <h3>{{ time.description }}</h3>
+        <p><strong>Fecha Inicio:</strong> {{ time.begin_date }}</p>
+        <p><strong>Fecha Fin:</strong> {{ time.end_date || 'En curso' }}</p>
+        <p><strong>Tiempo Gastado:</strong> {{ time.spent_time }} horas</p>
+        <div class="card-actions">
+          <a [routerLink]="['/times', time.id]" class="btn btn-secondary">Editar</a>
+          <button (click)="deleteTime(time.id!)" class="btn btn-danger">Eliminar</button>
+        </div>
+      </div>
+    }
+  </div>
+  <a routerLink="/" class="btn btn-link">Volver al Inicio</a>
+</div>

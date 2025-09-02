@@ -7,6 +7,10 @@ import { TaskGetResponse } from "./models/task-get-response.model";
 import { TaskPostRequest } from "./models/task-post-request.model";
 import { TaskPostResponse } from "./models/task-post-response.model";
 import { TaskPutRequest } from "./models/task-put-request.model";
+import { TimeDeleteResponse } from "./models/time-delete-response.model";
+import { TimeGetResponse } from "./models/time-get-response.model";
+import { TimePostRequest } from "./models/time-post-request.model";
+import { TimePostResponse } from "./models/time-post-response.model";
 
 @Injectable({ providedIn: 'root' })
 export class TasksService {
@@ -26,15 +30,9 @@ export class TasksService {
     });
   }
 
-  // Task methods
   getAllTasks(): Observable<TaskGetResponse[]> {
     return this.http.get<TaskGetResponse[]>(`${this.backend.apiUrl}tasks`, { headers: this.headers })
       .pipe(map(data => data.map(item => new TaskGetResponse(item))));
-  }
-
-  getTask(id: string): Observable<TaskGetResponse> {
-    return this.http.get<TaskGetResponse>(`${this.backend.apiUrl}tasks/${id}`, { headers: this.headers })
-      .pipe(map(data => new TaskGetResponse(data)));
   }
 
   createTask(request: TaskPostRequest): Observable<TaskPostResponse> {
@@ -50,5 +48,26 @@ export class TasksService {
   deleteTask(id: string): Observable<TaskDeleteResponse> {
     return this.http.delete<TaskDeleteResponse>(`${this.backend.apiUrl}tasks/${id}`, { headers: this.headers })
       .pipe(map(data => new TaskDeleteResponse(data)));
+  }
+
+
+  getTaskTimes(id: string): Observable<TimeGetResponse[]> {
+    return this.http.get<TimeGetResponse[]>(`${this.backend.apiUrl}tasks/${id}/times`, { headers: this.headers })
+      .pipe(map(data => data.map(item => new TimeGetResponse(item))));
+  }
+
+  createTaskTimes(id: string, request: TimePostRequest): Observable<TimePostResponse> {
+    return this.http.post<TimePostResponse>(`${this.backend.apiUrl}tasks/${id}/times`, request, { headers: this.headers })
+      .pipe(map(data => new TimePostResponse(data)));
+  }
+
+  deleteTaskTimes(taskId: string, timeId: string): Observable<TimeDeleteResponse> {
+    return this.http.delete<TimeDeleteResponse>(`${this.backend.apiUrl}tasks/${taskId}/times/${timeId}`, { headers: this.headers })
+      .pipe(map(data => new TimeDeleteResponse(data)));
+  }
+
+  updateTaskTimes(taskId: string, timeId: string, request: TimePostRequest): Observable<TimePostResponse> {
+    return this.http.put<TimePostResponse>(`${this.backend.apiUrl}tasks/${taskId}/times/${timeId}`, request, { headers: this.headers })
+      .pipe(map(data => new TimePostResponse(data)));
   }
 }

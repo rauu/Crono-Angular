@@ -1,9 +1,10 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TasksService } from '../../services/api/tasks.service';
 import { TaskGetResponse } from '../../services/api/models/task-get-response.model';
+import { SelectedTaskService } from '../../services/selected-task.service';
 
 @Component({
   selector: 'app-task-list',
@@ -20,8 +21,11 @@ export class TaskListComponent implements OnInit {
   loading: boolean = false;
   errorMessage: string = '';
 
-  constructor(private tasksService: TasksService,
-    private changeDetector: ChangeDetectorRef
+  constructor(
+    private tasksService: TasksService,
+    private changeDetector: ChangeDetectorRef,
+    private selectedTaskService: SelectedTaskService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +60,11 @@ export class TaskListComponent implements OnInit {
     } else {
       this.filteredTasks = this.tasks;
     }
+  }
+
+  editTask(task: TaskGetResponse): void {
+    this.selectedTaskService.setSelectedTask(task);
+    this.router.navigate(['/tasks', task.id]);
   }
 
   deleteTask(id: string): void {

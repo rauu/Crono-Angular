@@ -18,7 +18,8 @@
           <p>{{ task.description }}</p>
           <p><strong>Cliente:</strong> {{ task.customer }}</p>
           <div class="card-actions">
-            <a [routerLink]="['/tasks', task.id]" class="btn btn-secondary">Editar</a>
+            <button (click)="editTask(task)" class="btn btn-secondary">Editar</button>
+            <a [routerLink]="['/tasks', task.id, 'times']" class="btn btn-secondary">Ver Tiempos</a>
             <button (click)="deleteTask(task.id!)" class="btn btn-danger">Eliminar</button>
           </div>
         </div>

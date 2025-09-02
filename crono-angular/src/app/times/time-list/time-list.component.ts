@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TimeService } from '../../services/api/time.service';
 import { TimeGetResponse } from '../../services/api/models/time-get-response.model';
+import { TasksService } from '../../services/api/tasks.service';
+import { SelectedTimeService } from '../../services/selected-time.service';
 
 @Component({
   selector: 'app-time-list',
@@ -17,15 +18,24 @@ export class TimeListComponent implements OnInit {
   times: TimeGetResponse[] = [];
   filteredTimes: TimeGetResponse[] = [];
   searchTerm: string = '';
+  taskId?: string;
 
-  constructor(private timeService: TimeService, private cdr: ChangeDetectorRef) { }
+  constructor(
+    private tasksService: TasksService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private selectedTimeService: SelectedTimeService
+  ) {}
 
   ngOnInit(): void {
+    this.taskId = this.route.snapshot.paramMap.get('id') ?? undefined;
     this.loadTimes();
   }
 
   loadTimes(): void {
-    this.timeService.getAllTimes().subscribe({
+    if (!this.taskId) return;
+    this.tasksService.getTaskTimes(this.taskId).subscribe({
       next: (data) => {
         this.times = data;
         this.filteredTimes = data;
@@ -45,9 +55,15 @@ export class TimeListComponent implements OnInit {
     }
   }
 
+  editTime(time: TimeGetResponse): void {
+    this.selectedTimeService.setSelectedTime(time);
+    this.router.navigate([time.id], { relativeTo: this.route });
+  }
+
   deleteTime(id: string): void {
+    if (!this.taskId) return;
     if (confirm('¿Estás seguro de eliminar este tiempo?')) {
-      this.timeService.deleteTime(id).subscribe({
+      this.tasksService.deleteTaskTimes(this.taskId, id).subscribe({
         next: () => this.loadTimes(),
         error: (err) => console.error('Error deleting time', err)
       });

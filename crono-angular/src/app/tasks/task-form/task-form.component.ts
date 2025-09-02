@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -6,6 +6,7 @@ import { TasksService } from '../../services/api/tasks.service';
 import { TaskGetResponse } from '../../services/api/models/task-get-response.model';
 import { TaskPostRequest } from '../../services/api/models/task-post-request.model';
 import { TaskPutRequest } from '../../services/api/models/task-put-request.model';
+import { SelectedTaskService } from '../../services/selected-task.service';
 
 @Component({
   selector: 'app-task-form',
@@ -14,7 +15,7 @@ import { TaskPutRequest } from '../../services/api/models/task-put-request.model
   templateUrl: './task-form.component.html',
   styleUrls: ['./task-form.component.css']
 })
-export class TaskFormComponent implements OnInit {
+export class TaskFormComponent implements OnInit, OnDestroy {
   taskForm: FormGroup;
   isEdit: boolean = false;
   taskId: string | null = null;
@@ -24,7 +25,8 @@ export class TaskFormComponent implements OnInit {
     private tasksService: TasksService,
     private route: ActivatedRoute,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private selectedTaskService: SelectedTaskService
   ) {
     this.taskForm = this.fb.group({
       name: ['', Validators.required],
@@ -37,23 +39,26 @@ export class TaskFormComponent implements OnInit {
     this.taskId = this.route.snapshot.paramMap.get('id');
     if (this.taskId) {
       this.isEdit = true;
-      this.loadTask(this.taskId);
+      this.selectedTaskService.getSelectedTask().subscribe(task => {
+        if (task) {
+          this.taskForm.patchValue({
+            name: task.name,
+            description: task.description,
+            customer: task.customer
+          });
+          this.cdr.markForCheck();
+        } else {
+          this.router.navigate(['/']);
+        }
+      });
     }
   }
 
-  loadTask(id: string): void {
-    this.tasksService.getTask(id).subscribe({
-      next: (task) => {
-        this.taskForm.patchValue({
-          name: task.name,
-          description: task.description,
-          customer: task.customer
-        });
-        this.cdr.markForCheck();
-      },
-      error: (err) => console.error('Error loading task', err)
-    });
+  ngOnDestroy(): void {
+    this.selectedTaskService.clearSelectedTask();
   }
+
+
 
   onSubmit(): void {
     if (this.taskForm.valid) {
@@ -61,13 +66,13 @@ export class TaskFormComponent implements OnInit {
       if (this.isEdit && this.taskId) {
         const request = new TaskPutRequest(formValue);
         this.tasksService.updateTask(this.taskId, request).subscribe({
-          next: () => this.router.navigate(['/tasks']),
+          next: () => this.router.navigate(['/']),
           error: (err) => console.error('Error updating task', err)
         });
       } else {
         const request = new TaskPostRequest(formValue);
         this.tasksService.createTask(request).subscribe({
-          next: () => this.router.navigate(['/tasks']),
+          next: () => this.router.navigate(['/']),
           error: (err) => console.error('Error creating task', err)
         });
       }

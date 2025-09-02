@@ -1,10 +1,11 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { TimeService } from '../../services/api/time.service';
 import { TimePostRequest } from '../../services/api/models/time-post-request.model';
 import { TimePutRequest } from '../../services/api/models/time-put-request.model';
+import { TasksService } from '../../services/api/tasks.service';
+import { SelectedTimeService } from '../../services/selected-time.service';
 
 @Component({
   selector: 'app-time-form',
@@ -14,45 +15,54 @@ import { TimePutRequest } from '../../services/api/models/time-put-request.model
   styleUrls: ['./time-form.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimeFormComponent implements OnInit {
+export class TimeFormComponent implements OnInit, OnDestroy {
   timeForm: FormGroup;
   isEdit: boolean = false;
   timeId: string | null = null;
+  taskId?: string;
 
   constructor(
     private fb: FormBuilder,
-    private timeService: TimeService,
+    private tasksService: TasksService,
     private route: ActivatedRoute,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private selectedTimeService: SelectedTimeService
   ) {
     this.timeForm = this.fb.group({
       description: ['', Validators.required],
       begin_date: ['', Validators.required],
       end_date: ['']
     });
+    this.taskId = this.route.snapshot.paramMap.get('id') ?? undefined;
   }
 
   ngOnInit(): void {
-    this.timeId = this.route.snapshot.paramMap.get('id');
+    this.timeId = this.route.snapshot.paramMap.get('timeId');
     if (this.timeId) {
       this.isEdit = true;
-      this.loadTime(this.timeId);
+      this.selectedTimeService.getSelectedTime().subscribe(time => {
+        if (time && time.begin_date) {
+          this.timeForm.patchValue({
+            description: time.description || '',
+            begin_date: this.formatDateForInput(time.begin_date),
+            end_date: time.end_date ? this.formatDateForInput(time.end_date) : ''
+          });
+          this.cdr.markForCheck();
+        } else {
+          this.router.navigate(['/tasks', this.taskId, 'times']);
+        }
+      });
     }
   }
 
-  loadTime(id: string): void {
-    this.timeService.getTime(id).subscribe({
-      next: (time) => {
-        this.timeForm.patchValue({
-          description: time.description,
-          begin_date: time.begin_date,
-          end_date: time.end_date
-        });
-        this.cdr.markForCheck();
-      },
-      error: (err) => console.error('Error loading time', err)
-    });
+  ngOnDestroy(): void {
+    this.selectedTimeService.clearSelectedTime();
+  }
+
+  private formatDateForInput(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 16);
   }
 
   onSubmit(): void {
@@ -60,14 +70,14 @@ export class TimeFormComponent implements OnInit {
       const formValue = this.timeForm.value;
       if (this.isEdit && this.timeId) {
         const request = new TimePutRequest(formValue);
-        this.timeService.updateTime(this.timeId, request).subscribe({
-          next: () => this.router.navigate(['/times']),
+        this.tasksService.updateTaskTimes(this.taskId!, this.timeId, request).subscribe({
+          next: () => this.router.navigate(['/tasks', this.taskId, 'times']),
           error: (err) => console.error('Error updating time', err)
         });
       } else {
         const request = new TimePostRequest(formValue);
-        this.timeService.createTime(request).subscribe({
-          next: () => this.router.navigate(['/times']),
+        this.tasksService.createTaskTimes(this.taskId!, request).subscribe({
+          next: () => this.router.navigate(['/tasks', this.taskId, 'times']),
           error: (err) => console.error('Error creating time', err)
         });
       }

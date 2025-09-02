@@ -21,7 +21,10 @@ export class TimeService {
   ) {
     this.headers = new HttpHeaders({
       'x-access-token': this.backend.accessToken,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-access-token'
     });
   }
 

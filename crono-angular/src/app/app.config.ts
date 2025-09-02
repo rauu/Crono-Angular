@@ -14,4 +14,3 @@ export const appConfig: ApplicationConfig = {
     { provide: 'environment.backend', useValue: environment.backend },
   ]
 };
-11111

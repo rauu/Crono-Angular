@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TimeService } from '../../services/api/time.service';
-import { TimeGetResponse } from '../../services/api/models/time-get-response.model';
 import { TimePostRequest } from '../../services/api/models/time-post-request.model';
 import { TimePutRequest } from '../../services/api/models/time-put-request.model';
 
@@ -12,7 +11,8 @@ import { TimePutRequest } from '../../services/api/models/time-put-request.model
   standalone: true,
   imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './time-form.component.html',
-  styleUrls: ['./time-form.component.css']
+  styleUrls: ['./time-form.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimeFormComponent implements OnInit {
   timeForm: FormGroup;

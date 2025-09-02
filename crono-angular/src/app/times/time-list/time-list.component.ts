@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +10,8 @@ import { TimeGetResponse } from '../../services/api/models/time-get-response.mod
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './time-list.component.html',
-  styleUrls: ['./time-list.component.css']
+  styleUrls: ['./time-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimeListComponent implements OnInit {
   times: TimeGetResponse[] = [];

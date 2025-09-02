@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +10,8 @@ import { TaskGetResponse } from '../../services/api/models/task-get-response.mod
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './task-list.component.html',
-  styleUrls: ['./task-list.component.css']
+  styleUrls: ['./task-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaskListComponent implements OnInit {
   tasks: TaskGetResponse[] = [];
@@ -19,7 +20,9 @@ export class TaskListComponent implements OnInit {
   loading: boolean = false;
   errorMessage: string = '';
 
-  constructor(private tasksService: TasksService) {}
+  constructor(private tasksService: TasksService,
+    private changeDetector: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadTasks();
@@ -33,6 +36,7 @@ export class TaskListComponent implements OnInit {
         this.tasks = data;
         this.filteredTasks = data;
         this.loading = false;
+        this.changeDetector.markForCheck();
       },
       error: (err) => {
         console.error('Error loading tasks', err);
